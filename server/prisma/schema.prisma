@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo Usuarios
+model Usuario {
+  id          Int     @id @default(autoincrement())
+  nombre      String
+  apellido    String
+  email       String  @unique
+  contraseña String
+  rol         Rol
+  telefono    String?
+
+  paciente     Paciente?
+  medico       Medico?
+  farmaceutico Farmaceutico?
+}
+
+enum Rol {
+  medico
+  farmaceutico
+  paciente
+  admin
+}
+
+// Modelo Pacientes
+model Paciente {
+  id              Int       @id @default(autoincrement())
+  fechaNacimiento DateTime?
+  idUsuario       Int       @unique
+  usuario         Usuario   @relation(fields: [idUsuario], references: [id])
+
+  recetas        Receta[]
+  notificaciones Notificacion[]
+}
+
+// Modelo Medicos
+model Medico {
+  id           Int     @id @default(autoincrement())
+  especialidad String?
+  idUsuario    Int     @unique
+  usuario      Usuario @relation(fields: [idUsuario], references: [id])
+
+  recetas Receta[]
+}
+
+// Modelo Farmaceuticos
+model Farmaceutico {
+  id        Int     @id @default(autoincrement())
+  idUsuario Int     @unique
+  usuario   Usuario @relation(fields: [idUsuario], references: [id])
+}
+
+// Modelo Medicamentos
+model Medicamento {
+  id     Int    @id @default(autoincrement())
+  nombre String
+  stock  Int
+
+  detallesRecetas DetalleReceta[]
+}
+
+// Modelo Recetas
+model Receta {
+  id           Int      @id @default(autoincrement())
+  fechaEmision DateTime @default(now())
+  estado       Estado   @default(pendiente)
+  comentarios  String?
+
+  idMedico Int
+  medico   Medico @relation(fields: [idMedico], references: [id])
+
+  idPaciente Int
+  paciente   Paciente @relation(fields: [idPaciente], references: [id])
+
+  detalles       DetalleReceta[]
+  notificaciones Notificacion[]
+}
+
+enum Estado {
+  pendiente
+  entregada
+}
+
+// Modelo Detalles_Recetas
+model DetalleReceta {
+  id         Int    @id @default(autoincrement())
+  dosis      String
+  frecuencia String
+  duracion   String
+  cantidad   Int
+
+  idReceta Int
+  receta   Receta @relation(fields: [idReceta], references: [id])
+
+  idMedicamento Int
+  medicamento   Medicamento @relation(fields: [idMedicamento], references: [id])
+}
+
+// Modelo Notificaciones
+model Notificacion {
+  id         Int                @id @default(autoincrement())
+  fechaEnvio DateTime           @default(now())
+  estado     EstadoNotificacion @default(enviada)
+
+  idReceta Int
+  receta   Receta @relation(fields: [idReceta], references: [id])
+
+  idPaciente Int
+  paciente   Paciente @relation(fields: [idPaciente], references: [id])
+}
+
+enum EstadoNotificacion {
+  enviada
+  leida
+}
