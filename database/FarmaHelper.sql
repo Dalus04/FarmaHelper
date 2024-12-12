@@ -6,6 +6,7 @@ CREATE TABLE Usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
+    dni VARCHAR(10) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
     contraseña VARCHAR(255) NOT NULL,
     rol ENUM('medico', 'farmaceutico', 'paciente', 'admin') NOT NULL,
