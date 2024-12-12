@@ -73,8 +73,19 @@ export class PatientsService {
     });
   }
 
-  /*remove(id: number) {
-    return `This action removes a #${id} patient`;
-  } */
-  
+  async remove(id: number) {
+    const patient = await this.prisma.paciente.findUnique({
+      where: { id },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Paciente no encontrado');
+    }
+
+    return this.prisma.paciente.delete({
+      where: { id },
+    });
+
+  }
+
 }

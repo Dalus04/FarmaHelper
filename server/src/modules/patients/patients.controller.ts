@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
@@ -59,8 +59,12 @@ export class PatientsController {
   }
 
 
-  /*@Delete(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar un paciente por su ID (solo admin)' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Delete(':id')
   remove(@Param('id') id: string) {
     return this.patientsService.remove(+id);
-  }*/
+  }
 }

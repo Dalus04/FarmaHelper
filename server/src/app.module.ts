@@ -6,6 +6,7 @@ import { DoctorsModule } from './modules/doctors/doctors.module';
 import { PrescriptionsModule } from './modules/prescriptions/prescriptions.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { MedicinesModule } from './modules/medicines/medicines.module';
+import { PharmacistModule } from './modules/pharmacist/pharmacist.module';
 
 @Module({
   imports: [
@@ -13,9 +14,10 @@ import { MedicinesModule } from './modules/medicines/medicines.module';
     UsersModule,
     PatientsModule,
     DoctorsModule,
-    PrescriptionsModule,
+    PharmacistModule,
+    /*PrescriptionsModule,
     MedicinesModule,
-    NotificationsModule
+    NotificationsModule*/
   ],
   controllers: [],
   providers: [],

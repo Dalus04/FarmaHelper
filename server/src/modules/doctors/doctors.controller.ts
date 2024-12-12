@@ -58,8 +58,12 @@ export class DoctorsController {
     return this.doctorsService.updateByAdmin(+id, createDoctorDto);
   }
 
-  /*@Delete(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar un médico por su ID (solo admin)' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Delete(':id')
   remove(@Param('id') id: string) {
     return this.doctorsService.remove(+id);
-  }*/
+  }
 }

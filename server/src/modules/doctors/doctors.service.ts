@@ -74,7 +74,17 @@ export class DoctorsService {
     });
   }
 
-  /*remove(id: number) {
-    return `This action removes a #${id} doctor`;
-  }*/
+  async remove(id: number) {
+    const doctor = await this.prisma.medico.findUnique({
+      where: { id },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException('Médico no encontrado');
+    }
+
+    return this.prisma.medico.delete({
+      where: { id },
+    });
+  }
 }
