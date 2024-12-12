@@ -43,7 +43,7 @@ export class PatientsService {
     return paciente;
   }
 
-  async update(idUsuario: number, createPatientDto: CreatePatientDto) {
+  async updateOwnInfo(idUsuario: number, createPatientDto: CreatePatientDto) {
     const patient = await this.prisma.paciente.findUnique({
       where: { idUsuario },
     });
@@ -54,6 +54,21 @@ export class PatientsService {
 
     return this.prisma.paciente.update({
       where: { idUsuario },
+      data: createPatientDto,
+    });
+  }
+
+  async updateByAdmin(id: number, createPatientDto: CreatePatientDto) {
+    const patient = await this.prisma.paciente.findUnique({
+      where: { id },
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Paciente no encontrado');
+    }
+
+    return this.prisma.paciente.update({
+      where: { id },
       data: createPatientDto,
     });
   }

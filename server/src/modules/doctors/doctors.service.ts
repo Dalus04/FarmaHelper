@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -7,21 +7,19 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class DoctorsService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(createDoctorDto: CreateDoctorDto) {
-    const { idUsuario, especialidad } = createDoctorDto;
-
-    const usuario = await this.prisma.usuario.findUnique({
-      where: { id: idUsuario },
+  async create(idUsuario: number, createDoctorDto: CreateDoctorDto) {
+    const existingDoctor = await this.prisma.medico.findUnique({
+      where: { idUsuario },
     });
 
-    if (!usuario || usuario.rol != 'medico') {
-      throw new NotFoundException('El usuario no existe o no es un médico')
+    if (existingDoctor) {
+      throw new ConflictException('La información del médico ya existe')
     }
 
     return this.prisma.medico.create({
       data: {
         idUsuario,
-        especialidad,
+        especialidad: createDoctorDto.especialidad,
       },
     });
   }
@@ -45,12 +43,38 @@ export class DoctorsService {
     return medico;
   }
 
-  /*
-  update(id: number, updateDoctorDto: UpdateDoctorDto) {
-    return `This action updates a #${id} doctor`;
+
+  async updateOwnInfo(idUsuario: number, createDoctorDto: CreateDoctorDto) {
+    const doctor = await this.prisma.medico.findUnique({
+      where: { idUsuario },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException('Médico no encontrado');
+    }
+
+    return this.prisma.medico.update({
+      where: { idUsuario },
+      data: createDoctorDto,
+    });
   }
 
-  remove(id: number) {
+  async updateByAdmin(id: number, createDoctorDto: CreateDoctorDto) {
+    const doctor = await this.prisma.medico.findUnique({
+      where: { id },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException('Médico no encontrado');
+    }
+
+    return this.prisma.medico.update({
+      where: { id },
+      data: createDoctorDto,
+    });
+  }
+
+  /*remove(id: number) {
     return `This action removes a #${id} doctor`;
   }*/
 }

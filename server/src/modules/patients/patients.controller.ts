@@ -29,23 +29,6 @@ export class PatientsController {
     return this.patientsService.create(+idUsuario, createPatientDto);
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Actualizar información del propio paciente' })
-  @UseGuards(JwtAuthGuard)
-  @Patch('update')
-  async updateOwnInfo(@Request() req, @Body() createPatientDto: CreatePatientDto) {
-    return this.patientsService.update(req.user.userId, createPatientDto);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Actualizar información de un paciente (solo admin)' })
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
-  @Patch('update/:idUsuario')
-  async updateByAdmin(@Param('idUsuario') idUsuario: number, @Body() createPatientDto: CreatePatientDto) {
-    return this.patientsService.update(+idUsuario, createPatientDto);
-  }
-
   @ApiOperation({ summary: 'Obtener todos los pacientes' })
   @Get()
   async findAll() {
@@ -58,13 +41,25 @@ export class PatientsController {
     return this.patientsService.findOne(+id);
   }
 
-  /*
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
-    return this.patientsService.update(+id, updatePatientDto);
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Actualizar información del propio paciente' })
+  @UseGuards(JwtAuthGuard)
+  @Patch('update')
+  async updateOwnInfo(@Request() req, @Body() createPatientDto: CreatePatientDto) {
+    return this.patientsService.updateOwnInfo(req.user.userId, createPatientDto);
   }
 
-  @Delete(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Actualizar información de un paciente (solo admin)' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch('update/:idUsuario')
+  async updateByAdmin(@Param('id') id: number, @Body() createPatientDto: CreatePatientDto) {
+    return this.patientsService.updateByAdmin(+id, createPatientDto);
+  }
+
+
+  /*@Delete(':id')
   remove(@Param('id') id: string) {
     return this.patientsService.remove(+id);
   }*/
