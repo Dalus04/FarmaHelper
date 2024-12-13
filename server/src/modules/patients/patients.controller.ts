@@ -53,7 +53,7 @@ export class PatientsController {
   @ApiOperation({ summary: 'Actualizar información de un paciente (solo admin)' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  @Patch('update/:idUsuario')
+  @Patch('update/:id')
   async updateByAdmin(@Param('id') id: number, @Body() createPatientDto: CreatePatientDto) {
     return this.patientsService.updateByAdmin(+id, createPatientDto);
   }

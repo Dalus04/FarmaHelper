@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from '../auth/auth.guard';
@@ -33,23 +33,50 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  /*@Get()
+  @ApiOperation({ summary: 'Obtener todos los usuarios' })
+  @Get()
   findAll() {
     return this.usersService.findAll();
   }
 
+  @ApiOperation({ summary: 'Obtener un usuario por su ID' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Actualizar su propia información' })
+  @UseGuards(JwtAuthGuard)
+  @Patch('update')
+  async updateOwnInfo(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(req.user.userId, updateUserDto);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Actualizar información de un usuario (solo admin)' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch('update/:id')
+  async updateByAdmin(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar su propia cuenta' })
+  @UseGuards(JwtAuthGuard)
+  @Delete('delete')
+  async deleteOwnAccount(@Request() req) {
+    return this.usersService.remove(req.user.userId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar un usuario por su ID (solo admin)' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Delete('delete/:id')
+  async deleteByAdmin(@Param('id') id:number) {
     return this.usersService.remove(+id);
-  }*/
+  }
+
 }

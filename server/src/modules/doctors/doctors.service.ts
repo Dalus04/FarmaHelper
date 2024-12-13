@@ -8,6 +8,18 @@ export class DoctorsService {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(idUsuario: number, createDoctorDto: CreateDoctorDto) {
+    const user = await this.prisma.usuario.findUnique({
+      where: { id: idUsuario },
+    })
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (user.rol !== 'medico') {
+      throw new ConflictException('El usuario no tiene el rol de médico');
+    }
+
     const existingDoctor = await this.prisma.medico.findUnique({
       where: { idUsuario },
     });

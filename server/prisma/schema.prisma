@@ -35,7 +35,7 @@ model Paciente {
   id              Int       @id @default(autoincrement())
   fechaNacimiento DateTime?
   idUsuario       Int       @unique
-  usuario         Usuario   @relation(fields: [idUsuario], references: [id])
+  usuario         Usuario   @relation(fields: [idUsuario], references: [id], onDelete: Cascade)
 
   recetas        Receta[]
   notificaciones Notificacion[]
@@ -46,7 +46,7 @@ model Medico {
   id           Int     @id @default(autoincrement())
   especialidad String?
   idUsuario    Int     @unique
-  usuario      Usuario @relation(fields: [idUsuario], references: [id])
+  usuario      Usuario @relation(fields: [idUsuario], references: [id], onDelete: Cascade)
 
   recetas Receta[]
 }
@@ -55,7 +55,7 @@ model Medico {
 model Farmaceutico {
   id        Int     @id @default(autoincrement())
   idUsuario Int     @unique
-  usuario   Usuario @relation(fields: [idUsuario], references: [id])
+  usuario   Usuario @relation(fields: [idUsuario], references: [id], onDelete: Cascade)
 }
 
 // Modelo Medicamentos
