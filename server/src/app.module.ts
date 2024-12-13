@@ -15,9 +15,9 @@ import { PharmacistModule } from './modules/pharmacist/pharmacist.module';
     PatientsModule,
     DoctorsModule,
     PharmacistModule,
-    /*PrescriptionsModule,
+    //PrescriptionsModule,
     MedicinesModule,
-    NotificationsModule*/
+    //NotificationsModule
   ],
   controllers: [],
   providers: [],
