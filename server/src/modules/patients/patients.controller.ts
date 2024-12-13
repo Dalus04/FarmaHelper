@@ -45,8 +45,8 @@ export class PatientsController {
   @ApiOperation({ summary: 'Actualizar información del propio paciente' })
   @UseGuards(JwtAuthGuard)
   @Patch('update')
-  async updateOwnInfo(@Request() req, @Body() createPatientDto: CreatePatientDto) {
-    return this.patientsService.updateOwnInfo(req.user.userId, createPatientDto);
+  async updateOwnInfo(@Request() req, @Body() updatePatientDto: UpdatePatientDto) {
+    return this.patientsService.updateOwnInfo(req.user.userId, updatePatientDto);
   }
 
   @ApiBearerAuth()
@@ -54,8 +54,8 @@ export class PatientsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Patch('update/:id')
-  async updateByAdmin(@Param('id') id: number, @Body() createPatientDto: CreatePatientDto) {
-    return this.patientsService.updateByAdmin(+id, createPatientDto);
+  async updateByAdmin(@Param('id') id: number, @Body() updatePatientDto: UpdatePatientDto) {
+    return this.patientsService.updateByAdmin(+id, updatePatientDto);
   }
 
 

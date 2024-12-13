@@ -45,8 +45,8 @@ export class DoctorsController {
   @ApiOperation({ summary: 'Actualizar especialidad del propio médico' })
   @UseGuards(JwtAuthGuard)
   @Patch('update')
-  async updateOwnInfo(@Request() req, @Body() createDoctorDto: CreateDoctorDto) {
-    return this.doctorsService.updateOwnInfo(req.user.userId, createDoctorDto);
+  async updateOwnInfo(@Request() req, @Body() updateDoctorDto: UpdateDoctorDto) {
+    return this.doctorsService.updateOwnInfo(req.user.userId, updateDoctorDto);
   }
 
   @ApiBearerAuth()
@@ -54,8 +54,8 @@ export class DoctorsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Patch('update/:id')
-  async updateByAdmin(@Param('id') id: number, @Body() createDoctorDto: CreateDoctorDto) {
-    return this.doctorsService.updateByAdmin(+id, createDoctorDto);
+  async updateByAdmin(@Param('id') id: number, @Body() updateDoctorDto: UpdateDoctorDto) {
+    return this.doctorsService.updateByAdmin(+id, updateDoctorDto);
   }
 
   @ApiBearerAuth()

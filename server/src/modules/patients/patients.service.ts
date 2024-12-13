@@ -55,7 +55,7 @@ export class PatientsService {
     return paciente;
   }
 
-  async updateOwnInfo(idUsuario: number, createPatientDto: CreatePatientDto) {
+  async updateOwnInfo(idUsuario: number, updatePatientDto: UpdatePatientDto) {
     const patient = await this.prisma.paciente.findUnique({
       where: { idUsuario },
     });
@@ -66,11 +66,11 @@ export class PatientsService {
 
     return this.prisma.paciente.update({
       where: { idUsuario },
-      data: createPatientDto,
+      data: updatePatientDto,
     });
   }
 
-  async updateByAdmin(id: number, createPatientDto: CreatePatientDto) {
+  async updateByAdmin(id: number, updatePatientDto: UpdatePatientDto) {
     const patient = await this.prisma.paciente.findUnique({
       where: { id },
     });
@@ -81,7 +81,7 @@ export class PatientsService {
 
     return this.prisma.paciente.update({
       where: { id },
-      data: createPatientDto,
+      data: updatePatientDto,
     });
   }
 

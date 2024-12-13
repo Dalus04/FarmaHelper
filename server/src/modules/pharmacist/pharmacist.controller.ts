@@ -37,6 +37,7 @@ export class PharmacistController {
   update(@Param('id') id: string, @Body() updatePharmacistDto: UpdatePharmacistDto) {
     return this.pharmacistService.update(+id, updatePharmacistDto);
   }*/
+ 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Eliminar un farmacéutico por su ID (solo admin)' })
   @UseGuards(JwtAuthGuard, RolesGuard)
