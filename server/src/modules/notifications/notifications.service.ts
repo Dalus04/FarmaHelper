@@ -1,26 +1,70 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 
 @Injectable()
 export class NotificationsService {
-  create(createNotificationDto: CreateNotificationDto) {
-    return 'This action adds a new notification';
+  constructor(private readonly prisma: PrismaService) { }
+
+  async create(createNotificationDto: CreateNotificationDto) {
+    const { idReceta, idPaciente, estado } = createNotificationDto;
+
+    return this.prisma.notificacion.create({
+      data: {
+        idReceta,
+        idPaciente,
+        estado,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all notifications`;
+  async findAllByPatient(idPaciente: number) {
+    return this.prisma.notificacion.findMany({
+      where: { idPaciente },
+      include: { receta: true },
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} notification`;
+  async findOne(id: number) {
+    const notification = await this.prisma.notificacion.findUnique({
+      where: { id },
+      include: { receta: true },
+    });
+
+    if (!notification) {
+      throw new NotFoundException('Notificacion no encontrada');
+    }
+
+    return notification;
   }
 
-  update(id: number, updateNotificationDto: UpdateNotificationDto) {
-    return `This action updates a #${id} notification`;
+  async update(id: number, updateNotificationDto: UpdateNotificationDto) {
+    const notification = await this.prisma.notificacion.findUnique({
+      where: { id },
+    });
+
+    if (!notification) {
+      throw new NotFoundException('Notificacion no encontrada');
+    }
+
+    return this.prisma.notificacion.update({
+      where: { id },
+      data: updateNotificationDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} notification`;
+  async remove(id: number) {
+    const notification = await this.prisma.notificacion.findUnique({
+      where: { id },
+    });
+
+    if (!notification) {
+      throw new NotFoundException('Notificación no encontrada');
+    }
+
+    return this.prisma.notificacion.delete({
+      where: { id },
+    });
   }
 }

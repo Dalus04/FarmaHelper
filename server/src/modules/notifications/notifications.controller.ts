@@ -2,33 +2,40 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('notifications')
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(private readonly notificationsService: NotificationsService) { }
 
-  @Post()
+  @ApiOperation({ summary: 'Crear una nueva notificación' })
+  @Post('create')
   create(@Body() createNotificationDto: CreateNotificationDto) {
     return this.notificationsService.create(createNotificationDto);
   }
 
-  @Get()
-  findAll() {
-    return this.notificationsService.findAll();
+  @ApiOperation({ summary: 'Obtener todas las notificaciones de un paciente' })
+  @Get('paciente/:id')
+  findAll(@Param('id') idPaciente: number) {
+    return this.notificationsService.findAllByPatient(+idPaciente);
   }
 
+  @ApiOperation({ summary: 'Obtener una notificación por su ID' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.notificationsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
+  @ApiOperation({ summary: 'Actualizar el estado de la notificación' })
+  @Patch('update/:id')
+  update(@Param('id') id: number, @Body() updateNotificationDto: UpdateNotificationDto) {
     return this.notificationsService.update(+id, updateNotificationDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @ApiOperation({ summary: 'Eliminar una notificación' })
+  @Delete('delete/:id')
+  remove(@Param('id') id: number) {
     return this.notificationsService.remove(+id);
   }
 }
