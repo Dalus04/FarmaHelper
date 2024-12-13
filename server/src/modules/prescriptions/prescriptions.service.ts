@@ -1,26 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
 
 @Injectable()
 export class PrescriptionsService {
-  create(createPrescriptionDto: CreatePrescriptionDto) {
-    return 'This action adds a new prescription';
+  constructor(private readonly prisma: PrismaService) { }
+
+  async create(createPrescriptionDto: CreatePrescriptionDto) {
+    const { idMedico, idPaciente, comentarios, detalles } = createPrescriptionDto;
+
+    return this.prisma.receta.create({
+      data: {
+        idMedico,
+        idPaciente,
+        comentarios,
+        detalles: {
+          create: detalles.map(detalle => ({
+            dosis: detalle.dosis,
+            frecuencia: detalle.frecuencia,
+            duracion: detalle.duracion,
+            cantidad: detalle.cantidad,
+            idMedicamento: detalle.idMedicamento,
+          })),
+        },
+      },
+      include: {
+        detalles: {
+          include: {
+            medicamento: true,
+          },
+        },
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all prescriptions`;
+  async findAll() {
+    return this.prisma.receta.findMany({
+      include: {
+        medico: true,
+        paciente: true,
+        detalles: {
+          include: { medicamento: true },
+        },
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} prescription`;
+  async findOne(id: number) {
+    const prescription = await this.prisma.receta.findUnique({
+      where: { id },
+      include: {
+        medico: true,
+        paciente: true,
+        detalles: {
+          include: { medicamento: true },
+        },
+      },
+    });
+
+    if (!prescription) {
+      throw new NotFoundException('Receta no encontrada');
+    }
+
+    return prescription;
   }
 
-  update(id: number, updatePrescriptionDto: UpdatePrescriptionDto) {
-    return `This action updates a #${id} prescription`;
+  async update(id: number, updatePrescriptionDto: UpdatePrescriptionDto) {
+    return this.prisma.receta.update({
+      where: { id },
+      data: updatePrescriptionDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} prescription`;
+  async remove(id: number) {
+    return this.prisma.receta.delete({
+      where: { id },
+    });
   }
 }
