@@ -1,35 +1,46 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { LoginForm } from './components/LoginForm'
+import { RegisterForm } from './components/RegisterForm'
+import { Dashboard } from './components/Dashboard'
+import { ToastProvider } from './components/providers/toast-provider'
+import { Button } from "@/components/ui/button"
+import './App.scss'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isLogin, setIsLogin] = useState(true)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true)
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <ToastProvider>
+      {isLoggedIn ? (
+        <Dashboard />
+      ) : (
+        <div className="app-container">
+          <main className="main-content">
+            {isLogin ? (
+              <LoginForm onLoginSuccess={handleLoginSuccess} />
+            ) : (
+              <RegisterForm />
+            )}
+            <div className="mt-4 text-center">
+              <Button
+                variant="link"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-primary hover:text-primary/80"
+              >
+                {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
+              </Button>
+            </div>
+          </main>
+        </div>
+      )}
+    </ToastProvider>
   )
 }
 
 export default App
+
