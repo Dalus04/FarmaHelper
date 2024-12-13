@@ -1,3 +1,109 @@
+# API Gestión de Recetas Médicas
+
+Esta es una API RESTful construida con NestJS para gestionar recetas médicas, medicamentos, notificaciones y usuarios. Permite la creación y gestión de recetas, asociando medicamentos a cada receta, y notificaciones para pacientes, con operaciones CRUD y control de acceso basado en roles de usuario.
+
+## Tabla de Contenidos
+
+- [API Gestión de Recetas Médicas](#api-gestión-de-recetas-médicas)
+  - [Tabla de Contenidos](#tabla-de-contenidos)
+  - [Características](#características)
+  - [Instalación](#instalación)
+    - [Requisitos Previos](#requisitos-previos)
+    - [Clonar el Repositorio](#clonar-el-repositorio)
+    - [Instalación de Dependencias](#instalación-de-dependencias)
+    - [Configuración de las variables de entorno](#configuración-de-las-variables-de-entorno)
+    - [Crea las migraciones a la Base de Datos](#crea-las-migraciones-a-la-base-de-datos)
+  - [Ejecución de la Aplicación](#ejecución-de-la-aplicación)
+  - [Tecnologías Usadas](#tecnologías-usadas)
+
+- **Gestión de Usuarios**: Permite la creación, actualización y eliminación de usuarios, con control de acceso basado en roles (Administrador, Médico, Paciente, Farmacéutico).
+- **Gestión de Recetas**: Los médicos pueden crear recetas asociadas a pacientes, con detalles de los medicamentos recomendados.
+- **Medicamentos**: Permite la creación y actualización de medicamentos disponibles en la farmacia, con control de stock.
+- **Notificaciones**: El sistema puede enviar notificaciones a los pacientes sobre el estado de sus recetas.
+- **Roles de Usuario**: Control de acceso a las funcionalidades del sistema basado en roles, permitiendo a los administradores gestionar usuarios, médicos gestionar recetas y pacientes consultar sus recetas.
+
+## Instalación
+
+### Requisitos Previos
+
+Antes de comenzar, asegúrate de tener instalados los siguientes programas en tu sistema:
+
+- [Node.js](https://nodejs.org/en/) (versión 14 o superior)
+- [NestJS CLI](https://docs.nestjs.com/cli/overview)
+- [MySQL](https://www.mysql.com/)
+- [Prisma CLI](https://www.prisma.io/docs/concepts/components/prisma-cli)
+
+### Clonar el Repositorio
+
+Clona este repositorio en tu máquina local:
+
+```bash
+git clone https://github.com/Dalus04/FarmaHelper.git
+cd gestion-recetas
+cd server
+```
+
+### Instalación de Dependencias
+
+Instala las dependencias necesarias usando npm:
+
+```bash
+npm install
+```
+
+### Configuración de las variables de entorno
+
+Crea las siguientes variables de entorno en un archivo `.env`:
+
+```
+// Ejemplo aqui: https://www.prisma.io/docs/orm/overview/databases/mysql#connection-url
+DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/DATABASE"
+
+SECRET_KEY=<you-secret-key>
+
+JWT_SECRET=<you-secret-key>
+
+// Generate your token: https://apiperu.dev/
+API_PERU_DEV=<your_api_token>
+
+// Backend Server
+BACKEND_SERVER=http://localhost:8000
+
+// Cliente
+CLIENT_SERVER=http://localhost:5173
+
+// Correos
+EMAIL_HOST=smtp.gmail.com
+EMAIL_AUTH_USER=<your-email>
+EMAIL_AUTH_PASSWORD=<your-app-password>
+```
+
+### Crea las migraciones a la Base de Datos
+
+Ejecuta el siguiente comando para crear las migraciones:
+
+```bash
+npx prisma migrate dev --name Initial
+```
+
+## Ejecución de la Aplicación   
+
+Para ejecutar la aplicación en modo de desarrollo, utiliza el siguiente comando:
+
+```bash
+npm run start:dev
+```
+
+La documentación de la aplicación estará disponible en `http://localhost:8000/api/docs`.
+
+## Tecnologías Usadas
+
+- **NestJS**: Framework para Node.js basado en TypeScript.
+- **TypeScript**: Lenguaje de programación usado para el desarrollo.
+- **Prisma**: ORM para la gestión de la base de datos.
+- **MySQL**: Base de datos relacional utilizada para almacenar datos.
+- **JWT**: Para autenticación basada en tokens.
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
