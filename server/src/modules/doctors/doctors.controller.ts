@@ -17,7 +17,7 @@ export class DoctorsController {
   @UseGuards(JwtAuthGuard)
   @Post('create')
   async createOwnInfo(@Request() req, @Body() createDoctorDto: CreateDoctorDto) {
-    return this.doctorsService.create(req.user.id, createDoctorDto);
+    return this.doctorsService.create(req.user.userId, createDoctorDto);
   }
 
   @ApiBearerAuth()
