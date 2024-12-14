@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,11 +11,7 @@ import {
 } from "@/components/ui/sidebar"
 import { User, Stethoscope, Pill, Users } from 'lucide-react'
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-    setActiveSection: (section: string) => void;
-}
-
-export function DashboardSidebar({ className, setActiveSection, ...props }: SidebarProps) {
+export function DashboardSidebar({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <Sidebar className={cn("w-64 border-r", className)} {...props}>
             <SidebarHeader>
@@ -26,27 +23,35 @@ export function DashboardSidebar({ className, setActiveSection, ...props }: Side
             <SidebarContent>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton onClick={() => setActiveSection('paciente')}>
-                            <User className="mr-2 h-4 w-4" />
-                            Paciente
+                        <SidebarMenuButton asChild>
+                            <Link to="/dashboard/paciente">
+                                <User className="mr-2 h-4 w-4" />
+                                Paciente
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton onClick={() => setActiveSection('medico')}>
-                            <Stethoscope className="mr-2 h-4 w-4" />
-                            Médico
+                        <SidebarMenuButton asChild>
+                            <Link to="/dashboard/medico">
+                                <Stethoscope className="mr-2 h-4 w-4" />
+                                Médico
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton onClick={() => setActiveSection('farmaceutico')}>
-                            <Pill className="mr-2 h-4 w-4" />
-                            Farmacéutico
+                        <SidebarMenuButton asChild>
+                            <Link to="/dashboard/farmaceutico">
+                                <Pill className="mr-2 h-4 w-4" />
+                                Farmacéutico
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton onClick={() => setActiveSection('admin')}>
-                            <Users className="mr-2 h-4 w-4" />
-                            Admin
+                        <SidebarMenuButton asChild>
+                            <Link to="/dashboard/admin">
+                                <Users className="mr-2 h-4 w-4" />
+                                Admin
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

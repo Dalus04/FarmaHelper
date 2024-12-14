@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,6 +17,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const { toast } = useToast()
+    const navigate = useNavigate()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -29,6 +31,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                 description: `Bienvenido, ${response.user.dni}`,
             })
             onLoginSuccess()
+            navigate('/dashboard')
         } catch (error) {
             console.error('Login error:', error)
             toast({
@@ -86,6 +89,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
                         {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
                     </Button>
                 </form>
+                <div className="mt-4 text-center">
+                    <Link to="/register" className="text-sm text-primary hover:underline">
+                        ¿No tienes cuenta? Regístrate
+                    </Link>
+                </div>
             </CardContent>
         </Card>
     )

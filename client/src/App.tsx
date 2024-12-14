@@ -1,13 +1,12 @@
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 import { useState } from 'react'
 import { LoginForm } from './components/LoginForm'
 import { RegisterForm } from './components/RegisterForm'
 import { Dashboard } from './components/Dashboard'
 import { ToastProvider } from './components/providers/toast-provider'
-import { Button } from "@/components/ui/button"
 import './App.scss'
 
 function App() {
-  const [isLogin, setIsLogin] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const handleLoginSuccess = () => {
@@ -16,28 +15,32 @@ function App() {
 
   return (
     <ToastProvider>
-      {isLoggedIn ? (
-        <Dashboard />
-      ) : (
-        <div className="app-container">
-          <main className="main-content">
-            {isLogin ? (
-              <LoginForm onLoginSuccess={handleLoginSuccess} />
+      <Router>
+        <Routes>
+          <Route path="/login" element={
+            isLoggedIn ? (
+              <Navigate to="/dashboard" />
             ) : (
-              <RegisterForm />
-            )}
-            <div className="mt-4 text-center">
-              <Button
-                variant="link"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-primary hover:text-primary/80"
-              >
-                {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
-              </Button>
+              <div className="app-container">
+                <main className="main-content">
+                  <LoginForm onLoginSuccess={handleLoginSuccess} />
+                </main>
+              </div>
+            )
+          } />
+          <Route path="/register" element={
+            <div className="app-container">
+              <main className="main-content">
+                <RegisterForm />
+              </main>
             </div>
-          </main>
-        </div>
-      )}
+          } />
+          <Route path="/dashboard/*" element={
+            isLoggedIn ? <Dashboard /> : <Navigate to="/login" />
+          } />
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
     </ToastProvider>
   )
 }

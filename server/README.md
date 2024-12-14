@@ -39,7 +39,7 @@ Clona este repositorio en tu máquina local:
 
 ```bash
 git clone https://github.com/Dalus04/FarmaHelper.git
-cd gestion-recetas
+cd FarmaHelper
 cd server
 ```
 
