@@ -8,10 +8,15 @@ import {
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
+    SidebarGroup,
 } from "@/components/ui/sidebar"
-import { User, Stethoscope, Pill, Users } from 'lucide-react'
+import { User, Stethoscope, Pill, Users, Home, UserPlus } from 'lucide-react'
 
-export function DashboardSidebar({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+interface DashboardSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+    userName: string;
+}
+
+export function DashboardSidebar({ className, userName, ...props }: DashboardSidebarProps) {
     return (
         <Sidebar className={cn("w-64 border-r", className)} {...props}>
             <SidebarHeader>
@@ -22,6 +27,14 @@ export function DashboardSidebar({ className, ...props }: React.HTMLAttributes<H
             </SidebarHeader>
             <SidebarContent>
                 <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                            <Link to="/dashboard">
+                                <Home className="mr-2 h-4 w-4" />
+                                Inicio
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild>
                             <Link to="/dashboard/paciente">
@@ -53,6 +66,16 @@ export function DashboardSidebar({ className, ...props }: React.HTMLAttributes<H
                                 Admin
                             </Link>
                         </SidebarMenuButton>
+                        <SidebarGroup>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link to="/dashboard/admin/nuevos-registros">
+                                        <UserPlus className="mr-2 h-4 w-4" />
+                                        Nuevos Registros
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarGroup>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarContent>

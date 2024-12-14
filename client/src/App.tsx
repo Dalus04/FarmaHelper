@@ -8,9 +8,15 @@ import './App.scss'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userName, setUserName] = useState('')
+  const [userRole, setUserRole] = useState('')
+  const [token, setToken] = useState('')
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (name: string, role: string, accessToken: string) => {
     setIsLoggedIn(true)
+    setUserName(name)
+    setUserRole(role)
+    setToken(accessToken)
   }
 
   return (
@@ -35,9 +41,14 @@ function App() {
               </main>
             </div>
           } />
-          <Route path="/dashboard/*" element={
-            isLoggedIn ? <Dashboard /> : <Navigate to="/login" />
-          } />
+          <Route
+            path="/dashboard/*"
+            element={
+              isLoggedIn
+                ? <Dashboard userName={userName} userRole={userRole} token={token} />
+                : <Navigate to="/login" />
+            }
+          />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
       </Router>

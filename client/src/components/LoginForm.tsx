@@ -9,7 +9,7 @@ import { loginUser } from '../api/auth'
 import { useToast } from '@/hooks/use-toast'
 
 interface LoginFormProps {
-    onLoginSuccess: () => void;
+    onLoginSuccess: (name: string, role: string, token: string) => void;
 }
 
 export function LoginForm({ onLoginSuccess }: LoginFormProps) {
@@ -26,17 +26,18 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         try {
             const response = await loginUser(dni, password)
             console.log('Login successful:', response)
+            const fullName = `${response.user.nombre} ${response.user.apellido}`.trim()
             toast({
                 title: "Inicio de sesión exitoso",
-                description: `Bienvenido, ${response.user.dni}`,
+                description: `Bienvenido, ${fullName}`,
             })
-            onLoginSuccess()
+            onLoginSuccess(fullName, response.user.rol, response.access_token)
             navigate('/dashboard')
         } catch (error) {
             console.error('Login error:', error)
             toast({
                 title: "Error de inicio de sesión",
-                description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
+                description: error instanceof Error ? error.message : "Ocurri�� un error desconocido",
                 variant: "destructive",
             })
         } finally {
