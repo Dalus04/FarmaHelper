@@ -23,3 +23,17 @@ export interface LoginResponse {
     user: UserDto;
 }
 
+export interface UsersDto {
+    id: number;
+    dni: string;
+    nombre: string;
+    apellido: string;
+    email: string;
+    rol: string;
+    telefono?: string;
+    idEspecifico?: number;
+    especialidad?: string;
+    fechaNacimiento?: string;
+}
+
+

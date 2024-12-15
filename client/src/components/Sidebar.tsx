@@ -10,7 +10,7 @@ import {
     SidebarMenuButton,
     SidebarGroup,
 } from "@/components/ui/sidebar"
-import { User, Stethoscope, Pill, Users, Home, UserPlus, LogOut } from 'lucide-react'
+import { User, Stethoscope, Pill, Users, Home, UserPlus, LogOut, UserRoundCheck } from 'lucide-react'
 
 interface DashboardSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     userName: string;
@@ -35,7 +35,8 @@ export function DashboardSidebar({ className, userName, userRole, onLogout, ...p
             admin: [
                 {
                     to: "/dashboard/admin", icon: Users, label: "Admin", subItems: [
-                        { to: "/dashboard/admin/nuevos-registros", icon: UserPlus, label: "Nuevos Registros" }
+                        { to: "/dashboard/admin/nuevos-registros", icon: UserPlus, label: "Nuevos Registros" },
+                        { to: "/dashboard/admin/usuarios-registrados", icon: UserRoundCheck, label: "Usuarios" }
                     ]
                 },
             ],

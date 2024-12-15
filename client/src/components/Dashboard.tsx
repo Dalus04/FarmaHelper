@@ -10,6 +10,7 @@ import { InicioSection } from './sections/InicioSection'
 import { BirthDateForm } from './BirthDateForm'
 import { DoctorSpecialtyForm } from './DoctorSpecialtyForm'
 import { NuevosRegistros } from './admin/NuevosRegistros'
+import { UsuariosRegistrados } from './admin/UsuariosRegistrados'
 
 interface DashboardProps {
     userName: string;
@@ -70,6 +71,7 @@ export function Dashboard({ userName, userRole, token, onLogout }: DashboardProp
                             <>
                                 <Route path="admin" element={<AdminSection />} />
                                 <Route path="admin/nuevos-registros" element={<NuevosRegistros token={token} />} />
+                                <Route path="admin/usuarios-registrados" element={<UsuariosRegistrados token={token} />} />
                             </>
                         )}
                     </Routes>
