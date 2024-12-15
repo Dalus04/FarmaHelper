@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -22,13 +22,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { User, Stethoscope, Pill, Users, Home, UserPlus, LogOut, UserRoundCheck, ChevronUp, Edit, Trash2, Bell } from 'lucide-react'
 import { EditUserInfoModal } from './user/EditUserInfoModal'
+import { DeleteAccountModal } from './user/DeleteAccountModal'
+import { useToast } from '@/hooks/use-toast'
 
 interface DashboardSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     userName: string;
     userRole: string;
     token: string;
     onLogout: () => void;
-    onDeleteAccount: () => void;
     onNotifications: () => void;
 }
 
@@ -45,17 +46,19 @@ export function DashboardSidebar({
     userRole,
     token,
     onLogout,
-    onDeleteAccount,
     onNotifications,
     ...props
 }: DashboardSidebarProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [currentUserInfo, setCurrentUserInfo] = useState<{
         nombre: string;
         apellido: string;
         email: string;
         telefono: string;
     } | null>(null)
+    const { toast } = useToast()
+    const navigate = useNavigate()
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user')
@@ -120,6 +123,20 @@ export function DashboardSidebar({
         setIsEditModalOpen(true)
     }
 
+    const handleDeleteAccount = () => {
+        setIsDeleteModalOpen(true)
+    }
+
+    const handleDeleteSuccess = () => {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        toast({
+            title: "Cuenta eliminada",
+            description: "Tu cuenta ha sido eliminada exitosamente.",
+        })
+        navigate('/login')
+    }
+
     const handleUpdateSuccess = (updatedUser: typeof currentUserInfo) => {
         setCurrentUserInfo(updatedUser)
         const storedUser = localStorage.getItem('user')
@@ -166,7 +183,7 @@ export function DashboardSidebar({
                                     <Edit className="mr-2 h-4 w-4" />
                                     <span>Editar info</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={onDeleteAccount}>
+                                <DropdownMenuItem onClick={handleDeleteAccount}>
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     <span>Eliminar Cuenta</span>
                                 </DropdownMenuItem>
@@ -189,6 +206,11 @@ export function DashboardSidebar({
                 onClose={() => setIsEditModalOpen(false)}
                 onUpdateSuccess={handleUpdateSuccess}
                 currentUser={currentUserInfo}
+            />
+            <DeleteAccountModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onDeleteSuccess={handleDeleteSuccess}
             />
         </Sidebar>
     )

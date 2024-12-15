@@ -74,7 +74,15 @@ function App() {
             path="/dashboard/*"
             element={
               isLoggedIn
-                ? <Dashboard userName={userName} userRole={userRole} token={token} onLogout={handleLogout} />
+                ? <Dashboard
+                  userName={userName}
+                  userRole={userRole}
+                  token={token}
+                  onLogout={handleLogout}
+                  onNotifications={() => {
+                    console.log('Notifications clicked')
+                  }}
+                />
                 : <Navigate to="/login" />
             }
           />

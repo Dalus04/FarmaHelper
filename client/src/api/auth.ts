@@ -453,3 +453,44 @@ export async function updatePatientInfo(token: string, updatePatientDto: UpdateP
 
     return response.json();
 }
+
+export async function deleteAccount(token: string): Promise<void> {
+    const response = await fetch(`${BACKEND_SERVER}/users/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ confirmation: true }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete account');
+    }
+}
+
+export interface UpdateMyUserDto {
+    nombre: string;
+    apellido: string;
+    email: string;
+    telefono: string;
+}
+
+export async function updateUserInfo(token: string, userData: UpdateMyUserDto): Promise<UpdateMyUserDto> {
+    const response = await fetch(`${BACKEND_SERVER}/users/update`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update user information');
+    }
+
+    return response.json();
+}

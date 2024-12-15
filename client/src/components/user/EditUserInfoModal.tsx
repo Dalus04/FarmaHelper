@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from '@/hooks/use-toast'
+import { updateUserInfo, UpdateMyUserDto } from '@/api/auth'
 
 interface EditUserInfoModalProps {
     isOpen: boolean
     onClose: () => void
-    onUpdateSuccess: (updatedUser: UpdateUserDto) => void
+    onUpdateSuccess: (updatedUser: UpdateMyUserDto) => void
     currentUser: {
         nombre: string
         apellido: string
@@ -17,15 +18,8 @@ interface EditUserInfoModalProps {
     } | null
 }
 
-interface UpdateUserDto {
-    nombre: string
-    apellido: string
-    email: string
-    telefono: string
-}
-
 export function EditUserInfoModal({ isOpen, onClose, onUpdateSuccess, currentUser }: EditUserInfoModalProps) {
-    const [formData, setFormData] = useState<UpdateUserDto>({
+    const [formData, setFormData] = useState<UpdateMyUserDto>({
         nombre: '',
         apellido: '',
         email: '',
@@ -50,20 +44,7 @@ export function EditUserInfoModal({ isOpen, onClose, onUpdateSuccess, currentUse
         setIsLoading(true)
 
         try {
-            const response = await fetch('http://localhost:8000/users/update', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                },
-                body: JSON.stringify(formData),
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to update user information')
-            }
-
-            const updatedUser = await response.json()
+            const updatedUser = await updateUserInfo(localStorage.getItem('token') || '', formData)
             onUpdateSuccess(updatedUser)
             toast({
                 title: "Éxito",
