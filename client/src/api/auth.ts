@@ -62,6 +62,14 @@ interface Patient {
     fechaNacimiento: string;
 }
 
+export interface UpdateDoctorDto {
+    especialidad: string;
+}
+
+export interface UpdatePatientDto {
+    fechaNacimiento: string;
+}
+
 export async function registerUser(userData: RegisterUserDto): Promise<any> {
     const response = await fetch(`${BACKEND_SERVER}/users/register`, {
         method: 'POST',
@@ -410,3 +418,38 @@ export async function unassignPharmacist(token: string, pharmacistId: number): P
     }
 }
 
+export async function updateDoctorInfo(token: string, updateDoctorDto: UpdateDoctorDto): Promise<any> {
+    const response = await fetch(`${BACKEND_SERVER}/doctors/update`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updateDoctorDto)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al actualizar la información del médico');
+    }
+
+    return response.json();
+}
+
+export async function updatePatientInfo(token: string, updatePatientDto: UpdatePatientDto): Promise<any> {
+    const response = await fetch(`${BACKEND_SERVER}/patients/update`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatePatientDto)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al actualizar la información del paciente');
+    }
+
+    return response.json();
+}

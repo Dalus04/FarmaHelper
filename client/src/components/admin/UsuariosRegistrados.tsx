@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { Pagination } from "@/components/ui/pagination"
 import { MoreHorizontal, Pencil, Trash2, UserMinus } from 'lucide-react'
-import { fetchUsers, UserDto, deleteUser, updateUser, UpdateUserDto, updateDoctor, updatePatient } from '@/api/auth'
+import { fetchUsers, UserDto, deleteUser, updateUser, UpdateUserDto, updateDoctor, updatePatient, fetchRegisteredDoctors, fetchRegisteredPharmacists, unassignDoctor, unassignPharmacist } from '@/api/auth'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -67,6 +67,8 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
         especialidad: '',
         fechaNacimiento: '',
     })
+    const [registeredDoctorIds, setRegisteredDoctorIds] = useState<number[]>([])
+    const [registeredPharmacistIds, setRegisteredPharmacistIds] = useState<number[]>([])
 
     useEffect(() => {
         loadUsers()
@@ -78,8 +80,14 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
 
     const loadUsers = async () => {
         try {
-            const fetchedUsers = await fetchUsers(token)
+            const [fetchedUsers, doctorIds, pharmacistIds] = await Promise.all([
+                fetchUsers(token),
+                fetchRegisteredDoctors(token),
+                fetchRegisteredPharmacists(token)
+            ])
             setUsers(fetchedUsers)
+            setRegisteredDoctorIds(doctorIds)
+            setRegisteredPharmacistIds(pharmacistIds)
         } catch (error) {
             toast({
                 title: "Error",
@@ -208,20 +216,34 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
         }
     }
 
-    const handleUnassign = async (userId: number) => {
+    const handleUnassign = async (user: UserDto) => {
         try {
-            // Implement the API call to unassign the user
+            if (user.rol === 'medico' && user.idEspecifico) {
+                await unassignDoctor(token, user.idEspecifico)
+                setRegisteredDoctorIds(registeredDoctorIds.filter(id => id !== user.id))
+            } else if (user.rol === 'farmaceutico' && user.idEspecifico) {
+                await unassignPharmacist(token, user.idEspecifico)
+                setRegisteredPharmacistIds(registeredPharmacistIds.filter(id => id !== user.id))
+            }
+
+            // Update the user in the local state
+            setUsers(users.map(u =>
+                u.id === user.id
+                    ? { ...u, idEspecifico: undefined, especialidad: undefined }
+                    : u
+            ))
+
             toast({
                 title: "Éxito",
-                description: "Usuario desasignado exitosamente.",
-            });
+                description: `${user.rol === 'medico' ? 'Médico' : 'Farmacéutico'} desasignado exitosamente.`,
+            })
         } catch (error) {
-            console.error('Error al desasignar usuario:', error);
+            console.error('Error al desasignar usuario:', error)
             toast({
                 title: "Error",
                 description: "Error al desasignar usuario.",
                 variant: "destructive",
-            });
+            })
         }
     }
 
@@ -298,12 +320,13 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
                                                     <Trash2 className="mr-2 h-4 w-4" />
                                                     <span>Eliminar</span>
                                                 </DropdownMenuItem>
-                                                {(user.rol === 'medico' || user.rol === 'farmaceutico') && (
-                                                    <DropdownMenuItem onClick={() => handleUnassign(user.id)}>
-                                                        <UserMinus className="mr-2 h-4 w-4" />
-                                                        <span>Desasignar</span>
-                                                    </DropdownMenuItem>
-                                                )}
+                                                {((user.rol === 'medico' && registeredDoctorIds.includes(user.id)) ||
+                                                    (user.rol === 'farmaceutico' && registeredPharmacistIds.includes(user.id))) && (
+                                                        <DropdownMenuItem onClick={() => handleUnassign(user)}>
+                                                            <UserMinus className="mr-2 h-4 w-4" />
+                                                            <span>Desasignar</span>
+                                                        </DropdownMenuItem>
+                                                    )}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
