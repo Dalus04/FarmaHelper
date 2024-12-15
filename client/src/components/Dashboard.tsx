@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { DashboardSidebar } from './Sidebar'
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { PacienteSection } from './sections/PacienteSection'
@@ -15,9 +15,10 @@ interface DashboardProps {
     userName: string;
     userRole: string;
     token: string;
+    onLogout: () => void;
 }
 
-export function Dashboard({ userName, userRole, token }: DashboardProps) {
+export function Dashboard({ userName, userRole, token, onLogout }: DashboardProps) {
     const [needsBirthDate, setNeedsBirthDate] = useState(userRole === 'paciente')
     const [needsDoctorSpecialty, setNeedsDoctorSpecialty] = useState(userRole === 'medico')
 
@@ -58,15 +59,19 @@ export function Dashboard({ userName, userRole, token }: DashboardProps) {
     return (
         <SidebarProvider>
             <div className="flex h-screen">
-                <DashboardSidebar userName={userName} />
+                <DashboardSidebar userName={userName} userRole={userRole} onLogout={onLogout} />
                 <main className="flex-1 p-6 overflow-auto">
                     <Routes>
                         <Route path="" element={<InicioSection userName={userName} />} />
-                        <Route path="paciente" element={<PacienteSection />} />
-                        <Route path="medico" element={<MedicoSection />} />
-                        <Route path="farmaceutico" element={<FarmaceuticoSection />} />
-                        <Route path="admin" element={<AdminSection />} />
-                        <Route path="admin/nuevos-registros" element={<NuevosRegistros token={token} />} />
+                        {userRole === 'paciente' && <Route path="paciente" element={<PacienteSection />} />}
+                        {userRole === 'medico' && <Route path="medico" element={<MedicoSection />} />}
+                        {userRole === 'farmaceutico' && <Route path="farmaceutico" element={<FarmaceuticoSection />} />}
+                        {userRole === 'admin' && (
+                            <>
+                                <Route path="admin" element={<AdminSection />} />
+                                <Route path="admin/nuevos-registros" element={<NuevosRegistros token={token} />} />
+                            </>
+                        )}
                     </Routes>
                 </main>
             </div>

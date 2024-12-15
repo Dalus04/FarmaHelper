@@ -10,13 +10,67 @@ import {
     SidebarMenuButton,
     SidebarGroup,
 } from "@/components/ui/sidebar"
-import { User, Stethoscope, Pill, Users, Home, UserPlus } from 'lucide-react'
+import { User, Stethoscope, Pill, Users, Home, UserPlus, LogOut } from 'lucide-react'
 
 interface DashboardSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     userName: string;
+    userRole: string;
+    onLogout: () => void;
 }
 
-export function DashboardSidebar({ className, userName, ...props }: DashboardSidebarProps) {
+interface MenuItem {
+    to: string;
+    icon: React.ElementType;
+    label: string;
+    subItems?: MenuItem[];
+}
+
+export function DashboardSidebar({ className, userName, userRole, onLogout, ...props }: DashboardSidebarProps) {
+    const getMenuItems = (role: string): MenuItem[] => {
+        const commonItems: MenuItem[] = [
+            { to: "/dashboard", icon: Home, label: "Inicio" },
+        ];
+
+        const roleSpecificItems: Record<string, MenuItem[]> = {
+            admin: [
+                {
+                    to: "/dashboard/admin", icon: Users, label: "Admin", subItems: [
+                        { to: "/dashboard/admin/nuevos-registros", icon: UserPlus, label: "Nuevos Registros" }
+                    ]
+                },
+            ],
+            paciente: [
+                { to: "/dashboard/paciente", icon: User, label: "Paciente" },
+            ],
+            medico: [
+                { to: "/dashboard/medico", icon: Stethoscope, label: "Médico" },
+            ],
+            farmaceutico: [
+                { to: "/dashboard/farmaceutico", icon: Pill, label: "Farmacéutico" },
+            ],
+        };
+
+        return [...commonItems, ...(roleSpecificItems[role] || [])];
+    };
+
+    const menuItems = getMenuItems(userRole);
+
+    const renderMenuItem = (item: MenuItem) => (
+        <SidebarMenuItem key={item.to}>
+            <SidebarMenuButton asChild>
+                <Link to={item.to}>
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.label}
+                </Link>
+            </SidebarMenuButton>
+            {item.subItems && (
+                <SidebarGroup>
+                    {item.subItems.map(renderMenuItem)}
+                </SidebarGroup>
+            )}
+        </SidebarMenuItem>
+    );
+
     return (
         <Sidebar className={cn("w-64 border-r", className)} {...props}>
             <SidebarHeader>
@@ -27,55 +81,12 @@ export function DashboardSidebar({ className, userName, ...props }: DashboardSid
             </SidebarHeader>
             <SidebarContent>
                 <SidebarMenu>
+                    {menuItems.map(renderMenuItem)}
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                            <Link to="/dashboard">
-                                <Home className="mr-2 h-4 w-4" />
-                                Inicio
-                            </Link>
+                        <SidebarMenuButton onClick={onLogout}>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Cerrar sesión
                         </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                            <Link to="/dashboard/paciente">
-                                <User className="mr-2 h-4 w-4" />
-                                Paciente
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                            <Link to="/dashboard/medico">
-                                <Stethoscope className="mr-2 h-4 w-4" />
-                                Médico
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                            <Link to="/dashboard/farmaceutico">
-                                <Pill className="mr-2 h-4 w-4" />
-                                Farmacéutico
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                            <Link to="/dashboard/admin">
-                                <Users className="mr-2 h-4 w-4" />
-                                Admin
-                            </Link>
-                        </SidebarMenuButton>
-                        <SidebarGroup>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <Link to="/dashboard/admin/nuevos-registros">
-                                        <UserPlus className="mr-2 h-4 w-4" />
-                                        Nuevos Registros
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarGroup>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarContent>

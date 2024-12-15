@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LoginForm } from './components/LoginForm'
 import { RegisterForm } from './components/RegisterForm'
 import { Dashboard } from './components/Dashboard'
@@ -11,12 +11,41 @@ function App() {
   const [userName, setUserName] = useState('')
   const [userRole, setUserRole] = useState('')
   const [token, setToken] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
-  const handleLoginSuccess = (name: string, role: string, accessToken: string) => {
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user')
+    const storedToken = localStorage.getItem('token')
+    if (storedUser && storedToken) {
+      const user = JSON.parse(storedUser)
+      setIsLoggedIn(true)
+      setUserName(`${user.nombre} ${user.apellido}`)
+      setUserRole(user.rol)
+      setToken(storedToken)
+    }
+    setIsLoading(false)
+  }, [])
+
+  const handleLoginSuccess = (name: string, role: string, accessToken: string, user: any) => {
     setIsLoggedIn(true)
     setUserName(name)
     setUserRole(role)
     setToken(accessToken)
+    localStorage.setItem('user', JSON.stringify(user))
+    localStorage.setItem('token', accessToken)
+  }
+
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    setUserName('')
+    setUserRole('')
+    setToken('')
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>
   }
 
   return (
@@ -45,11 +74,11 @@ function App() {
             path="/dashboard/*"
             element={
               isLoggedIn
-                ? <Dashboard userName={userName} userRole={userRole} token={token} />
+                ? <Dashboard userName={userName} userRole={userRole} token={token} onLogout={handleLogout} />
                 : <Navigate to="/login" />
             }
           />
-          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
         </Routes>
       </Router>
     </ToastProvider>
