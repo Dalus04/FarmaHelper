@@ -6,7 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { Pagination } from "@/components/ui/pagination"
 import { MoreHorizontal, Pencil, Trash2, UserMinus } from 'lucide-react'
-import { fetchUsers, UserDto, deleteUser, updateUser, UpdateUserDto, updateDoctor, updatePatient, fetchRegisteredDoctors, fetchRegisteredPharmacists, unassignDoctor, unassignPharmacist } from '@/api/auth'
+import { fetchUsers, UserDto, deleteUser, updateUser, UpdateUserDto } from '@/api/user'
+import { updateDoctor, fetchRegisteredDoctors, unassignDoctor } from '@/api/doctor'
+import { updatePatient } from '@/api/patient'
+import { fetchRegisteredPharmacists, unassignPharmacist } from '@/api/pharmacist'
 import {
     DropdownMenu,
     DropdownMenuContent,

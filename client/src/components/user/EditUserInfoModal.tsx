@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { useToast } from '@/hooks/use-toast'
-import { updateUserInfo, UpdateMyUserDto } from '@/api/auth'
+import { updateUserInfo, UpdateMyUserDto } from '@/api/user'
+import { Modal } from '../common/Modal'
+import { FormInput } from '../common/FormInput'
 
 interface EditUserInfoModalProps {
     isOpen: boolean
@@ -68,71 +67,48 @@ export function EditUserInfoModal({ isOpen, onClose, onUpdateSuccess, currentUse
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Editar información de usuario</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit}>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="nombre" className="text-right">
-                                Nombre
-                            </Label>
-                            <Input
-                                id="nombre"
-                                name="nombre"
-                                value={formData.nombre}
-                                onChange={handleInputChange}
-                                className="col-span-3"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="apellido" className="text-right">
-                                Apellido
-                            </Label>
-                            <Input
-                                id="apellido"
-                                name="apellido"
-                                value={formData.apellido}
-                                onChange={handleInputChange}
-                                className="col-span-3"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="email" className="text-right">
-                                Email
-                            </Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                className="col-span-3"
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="telefono" className="text-right">
-                                Teléfono
-                            </Label>
-                            <Input
-                                id="telefono"
-                                name="telefono"
-                                value={formData.telefono}
-                                onChange={handleInputChange}
-                                className="col-span-3"
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button type="submit" disabled={isLoading}>
-                            {isLoading ? "Actualizando..." : "Guardar cambios"}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Editar información de usuario"
+            footer={
+                <Button type="submit" form="edit-user-form" disabled={isLoading}>
+                    {isLoading ? "Actualizando..." : "Guardar cambios"}
+                </Button>
+            }
+        >
+            <form id="edit-user-form" onSubmit={handleSubmit} className="space-y-4">
+                <FormInput
+                    label="Nombre"
+                    id="nombre"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleInputChange}
+                />
+                <FormInput
+                    label="Apellido"
+                    id="apellido"
+                    name="apellido"
+                    value={formData.apellido}
+                    onChange={handleInputChange}
+                />
+                <FormInput
+                    label="Email"
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                />
+                <FormInput
+                    label="Teléfono"
+                    id="telefono"
+                    name="telefono"
+                    value={formData.telefono}
+                    onChange={handleInputChange}
+                />
+            </form>
+        </Modal>
     )
 }
 

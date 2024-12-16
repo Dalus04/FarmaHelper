@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from '@/hooks/use-toast'
-import { createDoctorInfo } from '../api/auth'
+import { createDoctorInfo } from '@/api/doctor'
+import { FormLayout } from './common/FormLayout'
+import { FormInput } from './common/FormInput'
 
 interface DoctorSpecialtyFormProps {
     token: string;
@@ -40,32 +39,24 @@ export function DoctorSpecialtyForm({ token, onSubmitSuccess }: DoctorSpecialtyF
     }
 
     return (
-        <Card className="w-full max-w-md mx-auto shadow-lg">
-            <CardHeader>
-                <CardTitle className="text-2xl font-bold text-center">Completa tu información</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="specialty">Especialidad</Label>
-                        <Input
-                            id="specialty"
-                            value={specialty}
-                            onChange={(e) => setSpecialty(e.target.value)}
-                            required
-                            className="transition duration-200 ease-in-out focus:ring-2 focus:ring-primary"
-                        />
-                    </div>
-                    <Button
-                        type="submit"
-                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Guardando...' : 'Guardar'}
-                    </Button>
-                </form>
-            </CardContent>
-        </Card>
+        <FormLayout title="Completa tu información">
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <FormInput
+                    label="Especialidad"
+                    id="specialty"
+                    value={specialty}
+                    onChange={(e) => setSpecialty(e.target.value)}
+                    required
+                />
+                <Button
+                    type="submit"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                    disabled={isLoading}
+                >
+                    {isLoading ? 'Guardando...' : 'Guardar'}
+                </Button>
+            </form>
+        </FormLayout>
     )
 }
 

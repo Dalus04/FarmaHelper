@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Pill } from 'lucide-react'
 import { registerUser } from '../api/auth'
 import { useToast } from '@/hooks/use-toast'
+import { FormLayout } from './common/FormLayout'
+import { FormInput } from './common/FormInput'
 
 export function RegisterForm() {
     const [formData, setFormData] = useState({
@@ -48,106 +47,81 @@ export function RegisterForm() {
     }
 
     return (
-        <Card className="w-full max-w-md mx-auto shadow-lg">
-            <CardHeader className="space-y-1">
-                <div className="flex items-center justify-center space-x-2">
-                    <Pill className="h-6 w-6 text-primary" />
-                    <CardTitle className="text-2xl font-bold text-center">Registro en FarmaHelper</CardTitle>
-                </div>
-                <p className="text-center text-sm text-muted-foreground">
-                    Ingrese sus datos para crear una cuenta
-                </p>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="dni">DNI</Label>
-                        <Input
-                            id="dni"
-                            name="dni"
-                            type="text"
-                            placeholder="Ingrese su DNI"
-                            value={formData.dni}
-                            onChange={handleChange}
-                            required
-                            className="transition duration-200 ease-in-out focus:ring-2 focus:ring-primary"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            placeholder="Ingrese su email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            className="transition duration-200 ease-in-out focus:ring-2 focus:ring-primary"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="contraseña">Contraseña</Label>
-                        <Input
-                            id="contraseña"
-                            name="contraseña"
-                            type="password"
-                            placeholder="Ingrese su contraseña"
-                            value={formData.contraseña}
-                            onChange={handleChange}
-                            required
-                            className="transition duration-200 ease-in-out focus:ring-2 focus:ring-primary"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="nombre">Nombre</Label>
-                        <Input
-                            id="nombre"
-                            name="nombre"
-                            type="text"
-                            placeholder="Ingrese su nombre"
-                            value={formData.nombre}
-                            onChange={handleChange}
-                            required
-                            className="transition duration-200 ease-in-out focus:ring-2 focus:ring-primary"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="apellido">Apellido</Label>
-                        <Input
-                            id="apellido"
-                            name="apellido"
-                            type="text"
-                            placeholder="Ingrese su apellido"
-                            value={formData.apellido}
-                            onChange={handleChange}
-                            required
-                            className="transition duration-200 ease-in-out focus:ring-2 focus:ring-primary"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="telefono">Teléfono</Label>
-                        <Input
-                            id="telefono"
-                            name="telefono"
-                            type="tel"
-                            placeholder="Ingrese su teléfono"
-                            value={formData.telefono}
-                            onChange={handleChange}
-                            required
-                            className="transition duration-200 ease-in-out focus:ring-2 focus:ring-primary"
-                        />
-                    </div>
-                    <Button
-                        type="submit"
-                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Registrando...' : 'Registrarse'}
-                    </Button>
-                </form>
-            </CardContent>
-        </Card>
+        <FormLayout
+            title="Registro en FarmaHelper"
+            subtitle="Ingrese sus datos para crear una cuenta"
+            icon={<Pill className="h-6 w-6 text-primary" />}
+        >
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <FormInput
+                    label="DNI"
+                    id="dni"
+                    name="dni"
+                    type="text"
+                    placeholder="Ingrese su DNI"
+                    value={formData.dni}
+                    onChange={handleChange}
+                    required
+                />
+                <FormInput
+                    label="Email"
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Ingrese su email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                />
+                <FormInput
+                    label="Contraseña"
+                    id="contraseña"
+                    name="contraseña"
+                    type="password"
+                    placeholder="Ingrese su contraseña"
+                    value={formData.contraseña}
+                    onChange={handleChange}
+                    required
+                />
+                <FormInput
+                    label="Nombre"
+                    id="nombre"
+                    name="nombre"
+                    type="text"
+                    placeholder="Ingrese su nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    required
+                />
+                <FormInput
+                    label="Apellido"
+                    id="apellido"
+                    name="apellido"
+                    type="text"
+                    placeholder="Ingrese su apellido"
+                    value={formData.apellido}
+                    onChange={handleChange}
+                    required
+                />
+                <FormInput
+                    label="Teléfono"
+                    id="telefono"
+                    name="telefono"
+                    type="tel"
+                    placeholder="Ingrese su teléfono"
+                    value={formData.telefono}
+                    onChange={handleChange}
+                    required
+                />
+                <Button
+                    type="submit"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                    disabled={isLoading}
+                >
+                    {isLoading ? 'Registrando...' : 'Registrarse'}
+                </Button>
+            </form>
+        </FormLayout>
     )
 }
 

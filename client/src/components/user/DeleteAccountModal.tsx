@@ -1,15 +1,8 @@
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
 import { useToast } from '@/hooks/use-toast'
-import { deleteAccount } from '@/api/auth'
+import { deleteAccount } from '@/api/user'
+import { Modal } from '../common/Modal'
 
 interface DeleteAccountModalProps {
     isOpen: boolean;
@@ -45,22 +38,22 @@ export function DeleteAccountModal({ isOpen, onClose, onDeleteSuccess }: DeleteA
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Confirmar eliminación de cuenta</DialogTitle>
-                    <DialogDescription>
-                        ¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Confirmar eliminación de cuenta"
+            description="¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer."
+            footer={
+                <>
                     <Button variant="outline" onClick={onClose} disabled={isLoading}>Cancelar</Button>
                     <Button variant="destructive" onClick={handleConfirmDelete} disabled={isLoading}>
                         {isLoading ? "Eliminando..." : "Eliminar cuenta"}
                     </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </>
+            }
+        >
+            <p>Al eliminar tu cuenta, perderás acceso a todos tus datos y servicios asociados.</p>
+        </Modal>
     )
 }
 
