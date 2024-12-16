@@ -55,6 +55,19 @@ export class PatientsService {
     return paciente;
   }
 
+  async findByUsuarioId(idUsuario: number) {
+    const paciente = await this.prisma.paciente.findUnique({
+      where: { idUsuario },
+      include: { usuario: true },
+    });
+
+    if (!paciente) {
+      throw new NotFoundException('Paciente no encontrado para el usuario proporcionado');
+    }
+
+    return paciente;
+  }
+
   async updateOwnInfo(idUsuario: number, updatePatientDto: UpdatePatientDto) {
     const patient = await this.prisma.paciente.findUnique({
       where: { idUsuario },

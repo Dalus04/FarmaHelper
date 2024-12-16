@@ -35,10 +35,18 @@ export class DoctorsController {
     return this.doctorsService.findAll();
   }
 
-  @ApiOperation({ summary: 'Obtener un médico por su ID' })
+  /*@ApiOperation({ summary: 'Obtener un médico por su ID' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.doctorsService.findOne(+id);
+  }*/
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obtener la información del propio médico' })
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getOwnInfo(@Request() req) {
+    return this.doctorsService.findOwnInfo(req.user.userId);
   }
 
   @ApiBearerAuth()

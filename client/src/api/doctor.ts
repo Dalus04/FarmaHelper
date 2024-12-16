@@ -4,6 +4,21 @@ export interface UpdateDoctorDto {
     especialidad: string;
 }
 
+export interface Doctor {
+    id: number;
+    especialidad: string;
+    idUsuario: number;
+    usuario: {
+        id: number;
+        nombre: string;
+        apellido: string;
+        dni: string;
+        email: string;
+        rol: string;
+        telefono: string;
+    };
+}
+
 export async function fetchRegisteredDoctors(token: string): Promise<number[]> {
     try {
         const response = await fetch(`${BACKEND_SERVER}/doctors`, {
@@ -112,3 +127,19 @@ export async function updateDoctorInfo(token: string, updateDoctorDto: UpdateDoc
     return response.json();
 }
 
+export async function fetchDoctorInfo(token: string): Promise<Doctor> {
+    const response = await fetch(`${BACKEND_SERVER}/doctors/me`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al obtener la información del médico');
+    }
+
+    return response.json();
+}

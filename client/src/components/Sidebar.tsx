@@ -94,7 +94,14 @@ export function DashboardSidebar({
                 { to: "/dashboard/paciente", icon: User, label: "Paciente" },
             ],
             medico: [
-                { to: "/dashboard/medico", icon: Stethoscope, label: "Médico" },
+                {
+                    to: "/dashboard/medico",
+                    icon: Stethoscope,
+                    label: "Médico",
+                    subItems: [
+                        { to: "/dashboard/medico/envio-recetas", icon: Edit, label: "Envío de recetas" }
+                    ]
+                },
             ],
             farmaceutico: [
                 { to: "/dashboard/farmaceutico", icon: Pill, label: "Farmacéutico" },

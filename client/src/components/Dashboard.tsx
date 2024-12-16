@@ -11,6 +11,7 @@ import { UsuariosRegistrados } from './admin/UsuariosRegistrados'
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Menu, X } from 'lucide-react'
+import { EnvioRecetasSection } from './doctor/EnvioRecetas'
 
 interface DashboardProps {
     userName: string;
@@ -70,7 +71,12 @@ export function Dashboard({ userName, userRole, token, onLogout, onNotifications
                             <Routes>
                                 <Route path="" element={<InicioSection userName={userName} />} />
                                 {userRole === 'paciente' && <Route path="paciente" element={<PacienteSection />} />}
-                                {userRole === 'medico' && <Route path="medico" element={<MedicoSection />} />}
+                                {userRole === 'medico' && (
+                                    <>
+                                        <Route path="medico" element={<MedicoSection />} />
+                                        <Route path="medico/envio-recetas" element={<EnvioRecetasSection />} />
+                                    </>
+                                )}
                                 {userRole === 'farmaceutico' && <Route path="farmaceutico" element={<FarmaceuticoSection />} />}
                                 {userRole === 'admin' && (
                                     <>

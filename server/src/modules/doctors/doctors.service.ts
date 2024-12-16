@@ -42,7 +42,7 @@ export class DoctorsService {
     });
   }
 
-  async findOne(id: number) {
+  /*async findOne(id: number) {
     const medico = await this.prisma.medico.findUnique({
       where: { id },
       include: { usuario: true },
@@ -53,8 +53,20 @@ export class DoctorsService {
     }
 
     return medico;
-  }
+  }*/
 
+  async findOwnInfo(idUsuario: number) {
+    const doctor = await this.prisma.medico.findUnique({
+      where: { idUsuario },
+      include: { usuario: true },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException('Información del médico no encontrada');
+    }
+
+    return doctor;
+  }
 
   async updateOwnInfo(idUsuario: number, updateDoctorDto: UpdateDoctorDto) {
     const doctor = await this.prisma.medico.findUnique({

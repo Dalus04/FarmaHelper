@@ -4,6 +4,21 @@ export interface UpdatePatientDto {
     fechaNacimiento: string;
 }
 
+export interface Patient {
+    id: number;
+    fechaNacimiento: string;
+    idUsuario: number;
+    usuario: {
+        id: number;
+        nombre: string;
+        apellido: string;
+        dni: string;
+        email: string;
+        rol: string;
+        telefono: string;
+    };
+}
+
 export async function createPatientInfo(token: string, fechaNacimiento: string): Promise<any> {
     const response = await fetch(`${BACKEND_SERVER}/patients/create`, {
         method: 'POST',
@@ -59,3 +74,19 @@ export async function updatePatientInfo(token: string, updatePatientDto: UpdateP
     return response.json();
 }
 
+export async function fetchPatients(token: string): Promise<Patient[]> {
+    const response = await fetch(`${BACKEND_SERVER}/patients`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al obtener los pacientes');
+    }
+
+    return response.json();
+}

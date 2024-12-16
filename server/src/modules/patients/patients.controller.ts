@@ -41,6 +41,12 @@ export class PatientsController {
     return this.patientsService.findOne(+id);
   }
 
+  @ApiOperation({ summary: 'Obtener un paciente por su idUsuario' })
+  @Get('user/:idUsuario')
+  async findByUsuarioId(@Param('idUsuario') idUsuario: number) {
+    return this.patientsService.findByUsuarioId(+idUsuario);
+  }
+
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Actualizar información del propio paciente' })
   @UseGuards(JwtAuthGuard)
