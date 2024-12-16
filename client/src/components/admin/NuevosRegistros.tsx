@@ -86,7 +86,7 @@ export function NuevosRegistros({ token }: NuevosRegistrosProps) {
         }
 
         setFilteredUsers(filtered)
-        setCurrentPage(1) 
+        setCurrentPage(1)
     }
 
     const getPaginatedData = () => {
@@ -147,11 +147,11 @@ export function NuevosRegistros({ token }: NuevosRegistrosProps) {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 bg-white p-2 sm:p-4 rounded-lg">
             <h1 className="text-2xl font-bold">Nuevos Registros</h1>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-5 w-full">
-                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as Role)} className="w-full">
+                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as Role)} className="w-full text-sm sm:text-base">
                         <TabsList className="grid w-full grid-cols-3">
                             <TabsTrigger value="medico">Médico</TabsTrigger>
                             <TabsTrigger value="farmaceutico">Farmacéutico</TabsTrigger>
@@ -172,9 +172,9 @@ export function NuevosRegistros({ token }: NuevosRegistrosProps) {
                 </div>
                 <div className="lg:col-span-7 w-full">
                     <h2 className="text-xl font-semibold mb-4">Usuarios Pendientes</h2>
-                    <div className="mb-4 flex items-center space-x-4">
+                    <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                         <Select onValueChange={(value) => setSelectedRole(value as Role)}>
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-full sm:w-[180px]">
                                 <SelectValue placeholder="Filtrar por rol" />
                             </SelectTrigger>
                             <SelectContent>
@@ -184,54 +184,52 @@ export function NuevosRegistros({ token }: NuevosRegistrosProps) {
                             </SelectContent>
                         </Select>
                         <Input
-                            placeholder="Buscar por DNI, Nombre, Apellido, Email, Rol, Teléfono"
+                            placeholder="Buscar..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="flex-grow"
+                            className="w-full sm:w-auto flex-grow"
                         />
                     </div>
                     <div className="border rounded-lg overflow-hidden">
                         <div className="overflow-x-auto">
-                            <div className="min-w-[800px]">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="w-[100px]">DNI</TableHead>
-                                            <TableHead className="w-[150px]">Nombre</TableHead>
-                                            <TableHead className="w-[150px]">Apellido</TableHead>
-                                            <TableHead className="w-[200px]">Email</TableHead>
-                                            <TableHead className="w-[100px]">Rol</TableHead>
-                                            <TableHead className="w-[100px]">Teléfono</TableHead>
-                                            <TableHead className="w-[100px]">Acciones</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {getPaginatedData().length > 0 ? (
-                                            getPaginatedData().map((user) => (
-                                                <TableRow key={user.id}>
-                                                    <TableCell className="whitespace-nowrap">{user.dni}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">{user.nombre}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">{user.apellido}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">{user.email}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">{user.rol}</TableCell>
-                                                    <TableCell className="whitespace-nowrap">{user.telefono || 'N/A'}</TableCell>
-                                                    <TableCell>
-                                                        <Button onClick={() => handleRegister(user)} size="sm">
-                                                            Registrar
-                                                        </Button>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell colSpan={7} className="text-center py-4">
-                                                    No hay usuarios pendientes
+                            <Table className="w-full text-sm">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-[100px]">DNI</TableHead>
+                                        <TableHead className="w-[150px]">Nombre</TableHead>
+                                        <TableHead className="w-[150px]">Apellido</TableHead>
+                                        <TableHead className="w-[200px]">Email</TableHead>
+                                        <TableHead className="w-[100px]">Rol</TableHead>
+                                        <TableHead className="w-[100px]">Teléfono</TableHead>
+                                        <TableHead className="w-[100px]">Acciones</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {getPaginatedData().length > 0 ? (
+                                        getPaginatedData().map((user) => (
+                                            <TableRow key={user.id}>
+                                                <TableCell className="font-medium">{user.dni}</TableCell>
+                                                <TableCell>{user.nombre}</TableCell>
+                                                <TableCell>{user.apellido}</TableCell>
+                                                <TableCell>{user.email}</TableCell>
+                                                <TableCell>{user.rol}</TableCell>
+                                                <TableCell>{user.telefono || 'N/A'}</TableCell>
+                                                <TableCell>
+                                                    <Button onClick={() => handleRegister(user)} size="sm">
+                                                        Registrar
+                                                    </Button>
                                                 </TableCell>
                                             </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={7} className="text-center py-4">
+                                                No hay usuarios pendientes
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
                         </div>
                     </div>
                     <Pagination

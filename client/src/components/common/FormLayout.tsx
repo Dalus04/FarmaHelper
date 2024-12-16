@@ -10,7 +10,7 @@ interface FormLayoutProps {
 
 export function FormLayout({ title, subtitle, children, icon }: FormLayoutProps) {
     return (
-        <Card className="w-full max-w-md mx-auto shadow-lg">
+        <Card className="w-full max-w-md mx-auto shadow-lg sm:w-[95%] md:w-[90%] lg:w-[80%] xl:w-[70%]">
             <CardHeader className="space-y-1">
                 <div className="flex items-center justify-center space-x-2">
                     {icon && icon}

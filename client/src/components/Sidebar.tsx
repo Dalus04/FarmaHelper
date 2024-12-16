@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -20,7 +20,7 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { User, Stethoscope, Pill, Users, Home, UserPlus, LogOut, UserRoundCheck, ChevronUp, Edit, Trash2, Bell } from 'lucide-react'
+import { User, Stethoscope, Pill, Users, Home, UserPlus, LogOut, UserRoundCheck, ChevronUp, Edit, Trash2, Bell, X } from 'lucide-react'
 import { EditUserInfoModal } from './user/EditUserInfoModal'
 import { DeleteAccountModal } from './user/DeleteAccountModal'
 import { useToast } from '@/hooks/use-toast'
@@ -31,6 +31,7 @@ interface DashboardSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     token: string;
     onLogout: () => void;
     onNotifications: () => void;
+    onClose?: () => void;
 }
 
 interface MenuItem {
@@ -47,6 +48,7 @@ export function DashboardSidebar({
     token,
     onLogout,
     onNotifications,
+    onClose,
     ...props
 }: DashboardSidebarProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -59,6 +61,7 @@ export function DashboardSidebar({
     } | null>(null)
     const { toast } = useToast()
     const navigate = useNavigate()
+    const location = useLocation()
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user')
@@ -106,9 +109,18 @@ export function DashboardSidebar({
     const renderMenuItem = (item: MenuItem) => (
         <SidebarMenuItem key={item.to}>
             <SidebarMenuButton asChild>
-                <Link to={item.to}>
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {item.label}
+                <Link
+                    to={item.to}
+                    className={cn(
+                        "flex items-center space-x-2 w-full px-2 py-2 rounded-md hover:bg-gray-100",
+                        location.pathname === item.to && "bg-gray-100 font-medium"
+                    )}
+                    onClick={() => {
+                        if (onClose) onClose();
+                    }}
+                >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
                 </Link>
             </SidebarMenuButton>
             {item.subItems && (
@@ -148,12 +160,17 @@ export function DashboardSidebar({
     }
 
     return (
-        <Sidebar className={cn("w-64 border-r", className)} {...props}>
-            <SidebarHeader>
-                <Button variant="ghost" className="w-full justify-start">
-                    <Pill className="mr-2 h-4 w-4" />
+        <Sidebar className={cn("w-full sm:w-64 border-r min-w-[320px] sm:min-w-0", className)} {...props}>
+            <SidebarHeader className="flex justify-between items-center p-2 sm:p-4">
+                <Button variant="ghost" className="text-lg font-semibold">
+                    <Pill className="mr-2 h-5 w-5" />
                     FarmaHelper
                 </Button>
+                {onClose && (
+                    <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden">
+                        <X className="h-5 w-5" />
+                    </Button>
+                )}
             </SidebarHeader>
             <SidebarContent>
                 <SidebarMenu>

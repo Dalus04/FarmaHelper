@@ -7,34 +7,18 @@ import { Input } from "@/components/ui/input"
 import { Pagination } from "@/components/ui/pagination"
 import { MoreHorizontal, Pencil, Trash2, UserMinus } from 'lucide-react'
 import { fetchUsers, UserDto, deleteUser, updateUser, UpdateUserDto } from '@/api/user'
-import { updateDoctor, fetchRegisteredDoctors, unassignDoctor } from '@/api/doctor'
+import { updateDoctor, unassignDoctor, fetchRegisteredDoctors } from '@/api/doctor'
 import { updatePatient } from '@/api/patient'
-import { fetchRegisteredPharmacists, unassignPharmacist } from '@/api/pharmacist'
+import { unassignPharmacist, fetchRegisteredPharmacists } from '@/api/pharmacist'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+import { Modal } from '../common/Modal'
+import { FormInput } from '../common/FormInput'
+import { handleApiError } from '@/utils/apiErrorHadler'
 
 interface UsuariosRegistradosProps {
     token: string;
@@ -72,6 +56,8 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
     })
     const [registeredDoctorIds, setRegisteredDoctorIds] = useState<number[]>([])
     const [registeredPharmacistIds, setRegisteredPharmacistIds] = useState<number[]>([])
+    const [isUnassignDialogOpen, setIsUnassignDialogOpen] = useState(false)
+    const [userToUnassign, setUserToUnassign] = useState<UserDto | null>(null)
 
     useEffect(() => {
         loadUsers()
@@ -92,11 +78,7 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
             setRegisteredDoctorIds(doctorIds)
             setRegisteredPharmacistIds(pharmacistIds)
         } catch (error) {
-            toast({
-                title: "Error",
-                description: "Failed to fetch users.",
-                variant: "destructive",
-            })
+            handleApiError(error, "Error al cargar usuarios")
         }
     }
 
@@ -122,7 +104,7 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
         }
 
         setFilteredUsers(filtered)
-        setCurrentPage(1) // Reset to first page when filters change
+        setCurrentPage(1)
     }
 
     const getPaginatedData = () => {
@@ -159,12 +141,7 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
                     description: "Usuario eliminado exitosamente.",
                 });
             } catch (error) {
-                console.error('Error al eliminar usuario:', error);
-                toast({
-                    title: "Error",
-                    description: "Error al eliminar usuario.",
-                    variant: "destructive",
-                });
+                handleApiError(error, "Error al eliminar usuario")
             }
         }
         setIsDeleteDialogOpen(false);
@@ -175,7 +152,6 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
         e.preventDefault();
         if (userToEdit) {
             try {
-                // Regular user update
                 const updatedUser = await updateUser(token, userToEdit.id, {
                     nombre: editForm.nombre,
                     apellido: editForm.apellido,
@@ -183,14 +159,12 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
                     telefono: editForm.telefono,
                 });
 
-                // If user is a doctor, update specialty
                 if (userToEdit.rol === 'medico' && editForm.especialidad) {
                     await updateDoctor(token, userToEdit.idEspecifico!, {
                         especialidad: editForm.especialidad,
                     });
                 }
 
-                // If user is a patient, update birth date
                 if (userToEdit.rol === 'paciente' && editForm.fechaNacimiento) {
                     await updatePatient(token, userToEdit.idEspecifico!, {
                         fechaNacimiento: editForm.fechaNacimiento,
@@ -209,53 +183,51 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
                 });
                 setIsEditDialogOpen(false);
             } catch (error) {
-                console.error('Error al actualizar usuario:', error);
-                toast({
-                    title: "Error",
-                    description: "Error al actualizar usuario.",
-                    variant: "destructive",
-                });
+                handleApiError(error, "Error al actualizar usuario")
             }
         }
     }
 
-    const handleUnassign = async (user: UserDto) => {
-        try {
-            if (user.rol === 'medico' && user.idEspecifico) {
-                await unassignDoctor(token, user.idEspecifico)
-                setRegisteredDoctorIds(registeredDoctorIds.filter(id => id !== user.id))
-            } else if (user.rol === 'farmaceutico' && user.idEspecifico) {
-                await unassignPharmacist(token, user.idEspecifico)
-                setRegisteredPharmacistIds(registeredPharmacistIds.filter(id => id !== user.id))
+    const handleUnassign = (user: UserDto) => {
+        setUserToUnassign(user)
+        setIsUnassignDialogOpen(true)
+    }
+
+    const confirmUnassign = async () => {
+        if (userToUnassign) {
+            try {
+                if (userToUnassign.rol === 'medico' && userToUnassign.idEspecifico) {
+                    await unassignDoctor(token, userToUnassign.idEspecifico)
+                    setRegisteredDoctorIds(registeredDoctorIds.filter(id => id !== userToUnassign.id))
+                } else if (userToUnassign.rol === 'farmaceutico' && userToUnassign.idEspecifico) {
+                    await unassignPharmacist(token, userToUnassign.idEspecifico)
+                    setRegisteredPharmacistIds(registeredPharmacistIds.filter(id => id !== userToUnassign.id))
+                }
+
+                setUsers(users.map(u =>
+                    u.id === userToUnassign.id
+                        ? { ...u, idEspecifico: undefined, especialidad: undefined }
+                        : u
+                ))
+
+                toast({
+                    title: "Éxito",
+                    description: `${userToUnassign.rol === 'medico' ? 'Médico' : 'Farmacéutico'} desasignado exitosamente.`,
+                })
+            } catch (error) {
+                handleApiError(error, "Error al desasignar usuario")
             }
-
-            // Update the user in the local state
-            setUsers(users.map(u =>
-                u.id === user.id
-                    ? { ...u, idEspecifico: undefined, especialidad: undefined }
-                    : u
-            ))
-
-            toast({
-                title: "Éxito",
-                description: `${user.rol === 'medico' ? 'Médico' : 'Farmacéutico'} desasignado exitosamente.`,
-            })
-        } catch (error) {
-            console.error('Error al desasignar usuario:', error)
-            toast({
-                title: "Error",
-                description: "Error al desasignar usuario.",
-                variant: "destructive",
-            })
         }
+        setIsUnassignDialogOpen(false)
+        setUserToUnassign(null)
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 bg-white p-2 sm:p-4 rounded-lg">
             <h2 className="text-2xl font-bold">Usuarios Registrados</h2>
-            <div className="mb-4 flex items-center space-x-4">
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full">
                 <Select onValueChange={(value) => setSelectedRole(value as Role)}>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-full sm:w-[180px]">
                         <SelectValue placeholder="Filtrar por rol" />
                     </SelectTrigger>
                     <SelectContent>
@@ -267,192 +239,173 @@ export function UsuariosRegistrados({ token }: UsuariosRegistradosProps) {
                     </SelectContent>
                 </Select>
                 <Input
-                    placeholder="Buscar por DNI, Nombre, Apellido, Email, Rol, Teléfono, Especialidad, Fecha de Nacimiento"
+                    placeholder="Buscar..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="flex-grow"
+                    className="w-full sm:w-auto flex-grow"
                 />
             </div>
-            <div className="border rounded-lg overflow-hidden mx-auto" style={{ maxWidth: '100%', overflowX: 'auto' }}>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[80px]">ID Usuario</TableHead>
-                            <TableHead className="w-[100px]">DNI</TableHead>
-                            <TableHead className="w-[120px]">Nombre</TableHead>
-                            <TableHead className="w-[120px]">Apellido</TableHead>
-                            <TableHead className="w-[180px]">Email</TableHead>
-                            <TableHead className="w-[100px]">Rol</TableHead>
-                            <TableHead className="w-[100px]">ID Específico</TableHead>
-                            <TableHead className="w-[120px]">Especialidad</TableHead>
-                            <TableHead className="w-[120px]">Fecha Nacimiento</TableHead>
-                            <TableHead className="w-[100px]">Teléfono</TableHead>
-                            <TableHead className="w-[80px]">Acciones</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {getPaginatedData().length > 0 ? (
-                            getPaginatedData().map((user) => (
-                                <TableRow key={user.id}>
-                                    <TableCell className="whitespace-nowrap">{user.id}</TableCell>
-                                    <TableCell className="whitespace-nowrap">{user.dni}</TableCell>
-                                    <TableCell className="whitespace-nowrap">{user.nombre}</TableCell>
-                                    <TableCell className="whitespace-nowrap">{user.apellido}</TableCell>
-                                    <TableCell className="whitespace-nowrap">{user.email}</TableCell>
-                                    <TableCell className="whitespace-nowrap">{user.rol}</TableCell>
-                                    <TableCell className="whitespace-nowrap">{user.idEspecifico || '-'}</TableCell>
-                                    <TableCell className="whitespace-nowrap">{user.especialidad || '-'}</TableCell>
-                                    <TableCell className="whitespace-nowrap">
-                                        {user.fechaNacimiento ? user.fechaNacimiento.split('T')[0] : '-'}
-                                    </TableCell>
-                                    <TableCell className="whitespace-nowrap">{user.telefono || '-'}</TableCell>
-                                    <TableCell>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                                    <span className="sr-only">Open menu</span>
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => handleEdit(user)}>
-                                                    <Pencil className="mr-2 h-4 w-4" />
-                                                    <span>Editar</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleDelete(user)}>
-                                                    <Trash2 className="mr-2 h-4 w-4" />
-                                                    <span>Eliminar</span>
-                                                </DropdownMenuItem>
-                                                {((user.rol === 'medico' && registeredDoctorIds.includes(user.id)) ||
-                                                    (user.rol === 'farmaceutico' && registeredPharmacistIds.includes(user.id))) && (
-                                                        <DropdownMenuItem onClick={() => handleUnassign(user)}>
-                                                            <UserMinus className="mr-2 h-4 w-4" />
-                                                            <span>Desasignar</span>
-                                                        </DropdownMenuItem>
-                                                    )}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+            <div className="border rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                    <Table className="w-full text-sm">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[80px]">ID</TableHead>
+                                <TableHead className="w-[100px]">DNI</TableHead>
+                                <TableHead className="w-[120px]">Nombre</TableHead>
+                                <TableHead className="w-[120px]">Apellido</TableHead>
+                                <TableHead className="w-[180px]">Email</TableHead>
+                                <TableHead className="w-[100px]">Rol</TableHead>
+                                <TableHead className="w-[100px]">ID Específico</TableHead>
+                                <TableHead className="w-[120px]">Especialidad</TableHead>
+                                <TableHead className="w-[120px]">Fecha Nacimiento</TableHead>
+                                <TableHead className="w-[100px]">Teléfono</TableHead>
+                                <TableHead className="w-[80px]">Acciones</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {getPaginatedData().length > 0 ? (
+                                getPaginatedData().map((user) => (
+                                    <TableRow key={user.id}>
+                                        <TableCell className="font-medium">{user.id}</TableCell>
+                                        <TableCell>{user.dni}</TableCell>
+                                        <TableCell>{user.nombre}</TableCell>
+                                        <TableCell>{user.apellido}</TableCell>
+                                        <TableCell>{user.email}</TableCell>
+                                        <TableCell>{user.rol}</TableCell>
+                                        <TableCell>{user.idEspecifico || '-'}</TableCell>
+                                        <TableCell>{user.especialidad || '-'}</TableCell>
+                                        <TableCell>
+                                            {user.fechaNacimiento ? user.fechaNacimiento.split('T')[0] : '-'}
+                                        </TableCell>
+                                        <TableCell>{user.telefono || '-'}</TableCell>
+                                        <TableCell>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" className="h-8 w-8 p-0">
+                                                        <span className="sr-only">Abrir menú</span>
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => handleEdit(user)}>
+                                                        <Pencil className="mr-2 h-4 w-4" />
+                                                        <span>Editar</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleDelete(user)}>
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        <span>Eliminar</span>
+                                                    </DropdownMenuItem>
+                                                    {((user.rol === 'medico' && registeredDoctorIds.includes(user.id)) ||
+                                                        (user.rol === 'farmaceutico' && registeredPharmacistIds.includes(user.id))) && (
+                                                            <DropdownMenuItem onClick={() => handleUnassign(user)}>
+                                                                <UserMinus className="mr-2 h-4 w-4" />
+                                                                <span>Desasignar</span>
+                                                            </DropdownMenuItem>
+                                                        )}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={11} className="text-center py-4">
+                                        No hay usuarios registrados
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={11} className="text-center py-4">
-                                    No hay usuarios registrados
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
             <Pagination
                 currentPage={currentPage}
                 totalPages={Math.ceil(filteredUsers.length / itemsPerPage)}
                 onPageChange={setCurrentPage}
             />
-            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>¿Estás seguro de que quieres eliminar este usuario?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Esta acción no se puede deshacer. Esto eliminará permanentemente la cuenta
-                            del usuario y eliminará sus datos de nuestros servidores.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Editar Usuario</DialogTitle>
-                        <DialogDescription>
-                            Actualiza la información del usuario aquí. Haz clic en guardar cuando hayas terminado.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handleEditSubmit}>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="nombre" className="text-right">
-                                    Nombre
-                                </Label>
-                                <Input
-                                    id="nombre"
-                                    value={editForm.nombre}
-                                    onChange={(e) => setEditForm({ ...editForm, nombre: e.target.value })}
-                                    className="col-span-3"
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="apellido" className="text-right">
-                                    Apellido
-                                </Label>
-                                <Input
-                                    id="apellido"
-                                    value={editForm.apellido}
-                                    onChange={(e) => setEditForm({ ...editForm, apellido: e.target.value })}
-                                    className="col-span-3"
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="email" className="text-right">
-                                    Email
-                                </Label>
-                                <Input
-                                    id="email"
-                                    value={editForm.email}
-                                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                    className="col-span-3"
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="telefono" className="text-right">
-                                    Teléfono
-                                </Label>
-                                <Input
-                                    id="telefono"
-                                    value={editForm.telefono}
-                                    onChange={(e) => setEditForm({ ...editForm, telefono: e.target.value })}
-                                    className="col-span-3"
-                                />
-                            </div>
-                            {userToEdit?.rol === 'medico' && (
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="especialidad" className="text-right">
-                                        Especialidad
-                                    </Label>
-                                    <Input
-                                        id="especialidad"
-                                        value={editForm.especialidad}
-                                        onChange={(e) => setEditForm({ ...editForm, especialidad: e.target.value })}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                            )}
-                            {userToEdit?.rol === 'paciente' && (
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="fechaNacimiento" className="text-right">
-                                        Fecha de Nacimiento
-                                    </Label>
-                                    <Input
-                                        id="fechaNacimiento"
-                                        type="date"
-                                        value={editForm.fechaNacimiento ? editForm.fechaNacimiento.split('T')[0] : ''}
-                                        onChange={(e) => setEditForm({ ...editForm, fechaNacimiento: e.target.value })}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                            )}
-                        </div>
-                        <DialogFooter>
-                            <Button type="submit">Guardar cambios</Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            <Modal
+                isOpen={isDeleteDialogOpen}
+                onClose={() => setIsDeleteDialogOpen(false)}
+                title="¿Estás seguro de que quieres eliminar este usuario?"
+                description="Esta acción no se puede deshacer. Esto eliminará permanentemente la cuenta del usuario y eliminará sus datos de nuestros servidores."
+                footer={
+                    <>
+                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancelar</Button>
+                        <Button variant="destructive" onClick={confirmDelete}>Eliminar</Button>
+                    </>
+                }
+            >
+                <p>El usuario {userToDelete?.nombre} {userToDelete?.apellido} será eliminado permanentemente.</p>
+            </Modal>
+            <Modal
+                isOpen={isEditDialogOpen}
+                onClose={() => setIsEditDialogOpen(false)}
+                title="Editar Usuario"
+                description="Actualiza la información del usuario aquí. Haz clic en guardar cuando hayas terminado."
+                footer={
+                    <Button type="submit" form="edit-user-form">Guardar cambios</Button>
+                }
+            >
+                <form id="edit-user-form" onSubmit={handleEditSubmit} className="space-y-4">
+                    <FormInput
+                        label="Nombre"
+                        id="nombre"
+                        value={editForm.nombre}
+                        onChange={(e) => setEditForm({ ...editForm, nombre: e.target.value })}
+                    />
+                    <FormInput
+                        label="Apellido"
+                        id="apellido"
+                        value={editForm.apellido}
+                        onChange={(e) => setEditForm({ ...editForm, apellido: e.target.value })}
+                    />
+                    <FormInput
+                        label="Email"
+                        id="email"
+                        type="email"
+                        value={editForm.email}
+                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    />
+                    <FormInput
+                        label="Teléfono"
+                        id="telefono"
+                        value={editForm.telefono}
+                        onChange={(e) => setEditForm({ ...editForm, telefono: e.target.value })}
+                    />
+                    {userToEdit?.rol === 'medico' && (
+                        <FormInput
+                            label="Especialidad"
+                            id="especialidad"
+                            value={editForm.especialidad}
+                            onChange={(e) => setEditForm({ ...editForm, especialidad: e.target.value })}
+                        />
+                    )}
+                    {userToEdit?.rol === 'paciente' && (
+                        <FormInput
+                            label="Fecha de Nacimiento"
+                            id="fechaNacimiento"
+                            type="date"
+                            value={editForm.fechaNacimiento ? editForm.fechaNacimiento.split('T')[0] : ''}
+                            onChange={(e) => setEditForm({ ...editForm, fechaNacimiento: e.target.value })}
+                        />
+                    )}
+                </form>
+            </Modal>
+            <Modal
+                isOpen={isUnassignDialogOpen}
+                onClose={() => setIsUnassignDialogOpen(false)}
+                title={`¿Estás seguro de que quieres desasignar a este ${userToUnassign?.rol === 'medico' ? 'médico' : 'farmacéutico'}?`}
+                description="Esta acción eliminará la asignación específica del usuario."
+                footer={
+                    <>
+                        <Button variant="outline" onClick={() => setIsUnassignDialogOpen(false)}>Cancelar</Button>
+                        <Button variant="destructive" onClick={confirmUnassign}>Desasignar</Button>
+                    </>
+                }
+            >
+                <p>El usuario {userToUnassign?.nombre} {userToUnassign?.apellido} será desasignado.</p>
+            </Modal>
         </div>
     )
 }

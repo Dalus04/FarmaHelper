@@ -52,7 +52,7 @@ export function RegisterForm() {
             subtitle="Ingrese sus datos para crear una cuenta"
             icon={<Pill className="h-6 w-6 text-primary" />}
         >
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 w-full sm:w-[95%] md:w-[90%] lg:w-[80%] xl:w-[70%] mx-auto">
                 <FormInput
                     label="DNI"
                     id="dni"
@@ -115,7 +115,7 @@ export function RegisterForm() {
                 />
                 <Button
                     type="submit"
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground sm:w-auto sm:px-8"
                     disabled={isLoading}
                 >
                     {isLoading ? 'Registrando...' : 'Registrarse'}
