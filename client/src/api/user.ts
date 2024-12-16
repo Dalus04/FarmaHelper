@@ -169,3 +169,28 @@ export async function deleteAccount(token: string): Promise<void> {
     }
 }
 
+export interface User {
+    id: number;
+    nombre: string;
+    apellido: string;
+    dni: string;
+    email: string;
+    rol: string;
+    telefono: string;
+}
+
+export async function getUser(token: string, id: number): Promise<User> {
+    const response = await fetch(`${BACKEND_SERVER}/users/${id}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al obtener los datos del usuario');
+    }
+
+    return response.json();
+}
+

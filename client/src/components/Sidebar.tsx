@@ -104,7 +104,14 @@ export function DashboardSidebar({
                 },
             ],
             farmaceutico: [
-                { to: "/dashboard/farmaceutico", icon: Pill, label: "Farmacéutico" },
+                {
+                    to: "/dashboard/farmaceutico",
+                    icon: Pill,
+                    label: "Farmacéutico",
+                    subItems: [
+                        { to: "/dashboard/farmaceutico/dispensar-recetas", icon: Edit, label: "Dispensar recetas" }
+                    ]
+                },
             ],
         };
 
